@@ -1,0 +1,106 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-gap: 5px;
+  width: 315px; /* Adjusted width to accommodate grid and gaps */
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  background-color: gray;
+  cursor: pointer;
+}
+
+.green {
+  background-color: green;
+}
+
+.controls {
+  margin-top: 10px;
+}
+
+#restartBtn {
+  margin-right: 10px;
+}
+
+const squares = document.querySelectorAll('.square');
+const restartBtn = document.getElementById('restartBtn');
+const scoreDisplay = document.getElementById('score');
+const sequence = [];
+let index = 0;
+let memorizeCount = 1;
+let score = 0;
+
+// Function to generate a random number between 1 and 9
+function getRandomSquare() {
+  return Math.floor(Math.random() * 9) + 1;
+}
+
+// Function to highlight a square
+function highlightSquare(square) {
+  square.classList.add('green');
+  setTimeout(() => {
+    square.classList.remove('green');
+  }, 500);
+}
+
+// Function to handle square click
+function squareClickHandler(event) {
+  const squareId = event.target.id;
+  if (parseInt(squareId.substring(6)) === sequence[index]) {
+    highlightSquare(event.target);
+    index++;
+    if (index === memorizeCount) {
+      index = 0;
+      memorizeCount++;
+      score++;
+      scoreDisplay.textContent = `Score: ${score}`;
+      setTimeout(() => {
+        nextRound();
+      }, 1000);
+    }
+  } else {
+    alert('Game Over! You made a mistake.');
+    resetGame();
+  }
+}
+
+// Function to start a new round
+function nextRound() {
+  const newSquare = getRandomSquare();
+  sequence.push(newSquare);
+  animateSequence(sequence);
+}
+
+// Function to animate the sequence
+function animateSequence(sequence) {
+  let i = 0;
+  const interval = setInterval(() => {
+    highlightSquare(squares[sequence[i] - 1]);
+    i++;
+    if (i >= sequence.length) {
+      clearInterval(interval);
+    }
+  }, 1000);
+}
+
+// Function to reset the game
+function resetGame() {
+  index = 0;
+  memorizeCount = 1;
+  score = 0;
+  sequence.length = 0;
+  scoreDisplay.textContent = `Score: ${score}`;
+}
+
+// Function to handle restart button click
+restartBtn.addEventListener('click', resetGame);
+
+// Add click event listeners to squares
+squares.forEach(square => {
+  square.addEventListener('click', squareClickHandler);
+});
+
+// Start the game
+nextRound();
